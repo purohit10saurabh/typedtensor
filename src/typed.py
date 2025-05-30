@@ -111,6 +111,55 @@ class ScalarTensor(TypedTensor):
         return self.shape[0]
 
 
+class Sequence1DTensor(TypedTensor):
+    def __new__(cls, data: Union[torch.Tensor, list]):
+        tensor = torch.as_tensor(data)
+        if len(tensor.shape) != 3:
+            raise ValueError(f"Sequence1DTensor requires 3D tensor (B, C, L), got {tensor.shape}")
+        instance = super().__new__(cls, tensor, "sequence1d")
+        return instance
+    
+    @property
+    def batch_size(self) -> int:
+        return self.shape[0]
+    
+    @property
+    def channels(self) -> int:
+        return self.shape[1]
+    
+    @property
+    def length(self) -> int:
+        return self.shape[2]
+
+
+class VolumeTensor(TypedTensor):
+    def __new__(cls, data: Union[torch.Tensor, list]):
+        tensor = torch.as_tensor(data)
+        if len(tensor.shape) != 5:
+            raise ValueError(f"VolumeTensor requires 5D tensor (B, C, D, H, W), got {tensor.shape}")
+        instance = super().__new__(cls, tensor, "volume")
+        return instance
+    
+    @property
+    def batch_size(self) -> int:
+        return self.shape[0]
+    
+    @property
+    def channels(self) -> int:
+        return self.shape[1]
+    
+    @property
+    def depth(self) -> int:
+        return self.shape[2]
+    
+    @property
+    def height(self) -> int:
+        return self.shape[3]
+    
+    @property
+    def width(self) -> int:
+        return self.shape[4]
+
 
 @jaxtyped(typechecker=beartype)
 def create_image_tensor(data: Float[torch.Tensor, "batch channels height width"]) -> ImageTensor:
@@ -125,3 +174,13 @@ def create_sequence_tensor(data: Float[torch.Tensor, "batch time features"]) -> 
 @jaxtyped(typechecker=beartype)
 def create_scalar_tensor(data: Float[torch.Tensor, "batch 1"]) -> ScalarTensor:
     return ScalarTensor(data)
+
+
+@jaxtyped(typechecker=beartype)
+def create_sequence1d_tensor(data: torch.Tensor) -> Sequence1DTensor:
+    return Sequence1DTensor(data)
+
+
+@jaxtyped(typechecker=beartype)
+def create_volume_tensor(data: torch.Tensor) -> VolumeTensor:
+    return VolumeTensor(data)
