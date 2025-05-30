@@ -1,0 +1,4 @@
+torch>=2.0.0
+jaxtyping>=0.2.0
+beartype>=0.15.0
+typing-extensions>=4.0.0 
